@@ -2,7 +2,7 @@ require('should');
 const sinon = require('sinon');
 const { fake, assert } = sinon;
 
-const Noble = require('../lib/noble');
+const Noble = new require('../lib/noble');
 
 describe('Noble', () => {
   /**

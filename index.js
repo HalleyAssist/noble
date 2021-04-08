@@ -1,4 +1,10 @@
 const Noble = require('./lib/noble');
-const bindings = require('./lib/resolve-bindings')();
 
-module.exports = new Noble(bindings);
+class NobleInstance extends Noble {
+    constructor(){
+        const bindings = require('./lib/resolve-bindings')();
+        super(bindings)
+    }
+}
+
+module.exports = NobleInstance
