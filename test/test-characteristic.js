@@ -49,47 +49,14 @@ describe('Characteristic', function () {
     });
   });
 
-  describe('read', function () {
-    it('should delegate to noble', function () {
-      characteristic.read();
-
-      mockNoble.read.calledWithExactly(mockPeripheralId, mockServiceUuid, mockUuid).should.equal(true);
-    });
-
-    it('should callback', function () {
-      let calledback = false;
-
-      characteristic.read(function () {
-        calledback = true;
-      });
-      characteristic.emit('read');
-
-      calledback.should.equal(true);
-    });
-
-    it('should callback with data', function () {
-      const mockData = Buffer.alloc(0);
-      let callbackData = null;
-
-      characteristic.read(function (error, data) {
-        if (error) {
-          throw new Error(error);
-        }
-        callbackData = data;
-      });
-      characteristic.emit('read', mockData);
-
-      callbackData.should.equal(mockData);
-    });
-  });
-
   describe('readAsync', () => {
     it('should delegate to noble', async () => {
       const promise = characteristic.readAsync();
-      characteristic.emit('read');
-      await promise;
+      characteristic.emit('read', true);
+      const ret = await promise;
 
       mockNoble.read.calledWithExactly(mockPeripheralId, mockServiceUuid, mockUuid).should.equal(true);
+      ret.should.equal(true)
     });
 
     it('should resolve with data', async () => {
@@ -100,45 +67,6 @@ describe('Characteristic', function () {
       const result = await promise;
 
       result.should.equal(mockData);
-    });
-  });
-
-  describe('write', function () {
-    let mockData = null;
-
-    beforeEach(function () {
-      mockData = Buffer.alloc(0);
-    });
-
-    it('should only accept data as a buffer', function () {
-      mockData = {};
-
-      (function () {
-        characteristic.write(mockData);
-      }).should.throwError('data must be a Buffer or Uint8Array or Uint16Array or Uint32Array');
-    });
-
-    it('should delegate to noble, withoutResponse false', function () {
-      characteristic.write(mockData, false);
-
-      mockNoble.write.calledWithExactly(mockPeripheralId, mockServiceUuid, mockUuid, mockData, false).should.equal(true);
-    });
-
-    it('should delegate to noble, withoutResponse true', function () {
-      characteristic.write(mockData, true);
-
-      mockNoble.write.calledWithExactly(mockPeripheralId, mockServiceUuid, mockUuid, mockData, true).should.equal(true);
-    });
-
-    it('should callback', function () {
-      let calledback = false;
-
-      characteristic.write(mockData, true, function () {
-        calledback = true;
-      });
-      characteristic.emit('write');
-
-      calledback.should.equal(true);
     });
   });
 
@@ -180,31 +108,6 @@ describe('Characteristic', function () {
     });
   });
 
-  describe('broadcast', function () {
-    it('should delegate to noble, true', function () {
-      characteristic.broadcast(true);
-
-      mockNoble.broadcast.calledWithExactly(mockPeripheralId, mockServiceUuid, mockUuid, true).should.equal(true);
-    });
-
-    it('should delegate to noble, false', function () {
-      characteristic.broadcast(false);
-
-      mockNoble.broadcast.calledWithExactly(mockPeripheralId, mockServiceUuid, mockUuid, false).should.equal(true);
-    });
-
-    it('should callback', function () {
-      let calledback = false;
-
-      characteristic.broadcast(true, function () {
-        calledback = true;
-      });
-      characteristic.emit('broadcast');
-
-      calledback.should.equal(true);
-    });
-  });
-
   describe('broadcastAsync', () => {
     it('should delegate to noble, true', async () => {
       const promise = characteristic.broadcastAsync(true);
@@ -228,31 +131,6 @@ describe('Characteristic', function () {
       await promise;
 
       await promise.should.be.resolved();
-    });
-  });
-
-  describe('notify', function () {
-    it('should delegate to noble, true', function () {
-      characteristic.notify(true);
-
-      mockNoble.notify.calledWithExactly(mockPeripheralId, mockServiceUuid, mockUuid, true).should.equal(true);
-    });
-
-    it('should delegate to noble, false', function () {
-      characteristic.notify(false);
-
-      mockNoble.notify.calledWithExactly(mockPeripheralId, mockServiceUuid, mockUuid, false).should.equal(true);
-    });
-
-    it('should callback', function () {
-      let calledback = false;
-
-      characteristic.notify(true, function () {
-        calledback = true;
-      });
-      characteristic.emit('notify');
-
-      calledback.should.equal(true);
     });
   });
 
@@ -282,25 +160,6 @@ describe('Characteristic', function () {
     });
   });
 
-  describe('subscribe', function () {
-    it('should delegate to noble notify, true', function () {
-      characteristic.subscribe();
-
-      mockNoble.notify.calledWithExactly(mockPeripheralId, mockServiceUuid, mockUuid, true).should.equal(true);
-    });
-
-    it('should callback', function () {
-      let calledback = false;
-
-      characteristic.subscribe(function () {
-        calledback = true;
-      });
-      characteristic.emit('notify');
-
-      calledback.should.equal(true);
-    });
-  });
-
   describe('subscribeAsync', () => {
     it('should delegate to noble notify, true', async () => {
       const promise = characteristic.subscribeAsync();
@@ -316,25 +175,6 @@ describe('Characteristic', function () {
       await promise;
 
       await promise.should.be.resolved();
-    });
-  });
-
-  describe('unsubscribe', function () {
-    it('should delegate to noble notify, false', function () {
-      characteristic.unsubscribe();
-
-      mockNoble.notify.calledWithExactly(mockPeripheralId, mockServiceUuid, mockUuid, false).should.equal(true);
-    });
-
-    it('should callback', function () {
-      let calledback = false;
-
-      characteristic.unsubscribe(function () {
-        calledback = true;
-      });
-      characteristic.emit('notify');
-
-      calledback.should.equal(true);
     });
   });
 
@@ -356,44 +196,10 @@ describe('Characteristic', function () {
     });
   });
 
-  describe('discoverDescriptors', function () {
-    it('should delegate to noble', function () {
-      characteristic.discoverDescriptors();
-
-      mockNoble.discoverDescriptors.calledWithExactly(mockPeripheralId, mockServiceUuid, mockUuid).should.equal(true);
-    });
-
-    it('should callback', function () {
-      let calledback = false;
-
-      characteristic.discoverDescriptors(function () {
-        calledback = true;
-      });
-      characteristic.emit('descriptorsDiscover');
-
-      calledback.should.equal(true);
-    });
-
-    it('should callback with descriptors', function () {
-      const mockDescriptors = [];
-      let callbackDescriptors = null;
-
-      characteristic.discoverDescriptors(function (error, descriptors) {
-        if (error) {
-          throw new Error(error);
-        }
-        callbackDescriptors = descriptors;
-      });
-      characteristic.emit('descriptorsDiscover', mockDescriptors);
-
-      callbackDescriptors.should.equal(mockDescriptors);
-    });
-  });
-
   describe('discoverDescriptorsAsync', () => {
     it('should delegate to noble', async () => {
       const promise = characteristic.discoverDescriptorsAsync();
-      characteristic.emit('descriptorsDiscover');
+      characteristic.emit('descriptorsDiscover', true);
       await promise;
 
       mockNoble.discoverDescriptors.calledWithExactly(mockPeripheralId, mockServiceUuid, mockUuid).should.equal(true);
