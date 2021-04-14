@@ -40,6 +40,12 @@ describe('service', function () {
     });
   });
 
+  it('should be dumpable and restorable', function () {
+    const dumped = service.dump()
+    const restored = Service.fromDump(mockNoble, dumped)
+    service.toString().should.eql(restored.toString())
+  });
+
   describe('discoverIncludedServices', function () {
     it('should delegate to noble', function () {
       service.discoverIncludedServices();

@@ -52,6 +52,13 @@ describe('Peripheral', function () {
     peripheral.connectable.should.equal(mockConnectable);
   });
 
+  it('should be dumpable and restorable', function () {
+    const dumped = peripheral.dump()
+    const restored = Peripheral.fromDump(mockNoble, dumped)
+    peripheral.toString().should.eql(restored.toString())
+  });
+
+
   it('should have advertisement', function () {
     peripheral.advertisement.should.equal(mockAdvertisement);
   });

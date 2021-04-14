@@ -42,6 +42,13 @@ describe('Descriptor', function () {
     });
   });
 
+  it('should be dumpable and restorable', function () {
+    const dumped = descriptor.dump()
+    const restored = Descriptor.fromDump(mockNoble, dumped)
+    descriptor.toString().should.eql(restored.toString())
+  });
+
+
   describe('readValue', function () {
     it('should delegate to noble', function () {
       descriptor.readValue();

@@ -32,6 +32,12 @@ describe('Characteristic', function () {
     characteristic.uuid.should.equal(mockUuid);
   });
 
+  it('should be dumpable and restorable', function () {
+    const dumped = characteristic.dump()
+    const restored = Characteristic.fromDump(mockNoble, dumped)
+    characteristic.toString().should.eql(restored.toString())
+  });
+
   it('should lookup name and type by uuid', function () {
     characteristic = new Characteristic(mockNoble, mockPeripheralId, mockServiceUuid, '2a00', mockProperties);
 
