@@ -36,7 +36,8 @@
   "dependencies": {
     "debug": "^4.3.1",
     "napi-thread-safe-callback": "0.0.6",
-    "node-addon-api": "^3.1.0"
+    "node-addon-api": "^3.1.0",
+    "q-lite": "https://github.com/HalleyAssist/q-lite.git"
   },
   "optionalDependencies": {
     "@abandonware/bluetooth-hci-socket": "^0.5.3-7"
