@@ -1,4 +1,4 @@
-name: Node.js package
+name: Test
 
 on:
   pull_request:
@@ -13,7 +13,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-18.04, ubuntu-latest, macos-latest]
+        os: [ubuntu-18.04, ubuntu-latest]
         node: [8, 10, 12, 13, 14]
     steps:
       - uses: actions/checkout@v2
@@ -49,9 +49,3 @@ jobs:
         # Mac bindings will currently not build on Node 6
         run: |
           npm test
-      - name: Lint
-        # ESLint 6+ is not compatible with Node 6
-        # ESLint 7+ is not compatible with Node 8
-        if: ${{ matrix.node > 8 }}
-        run: |
-          npm run lint
