@@ -7,4 +7,9 @@ class NobleInstance extends Noble {
     }
 }
 
+NobleInstance.Peripheral = require('./lib/peripheral')
+NobleInstance.Service = require('./lib/service')
+NobleInstance.Descriptor = require('./lib/descriptor')
+NobleInstance.Characteristic = require('./lib/characteristic')
+
 module.exports = NobleInstance
