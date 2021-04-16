@@ -51,7 +51,7 @@ describe('Characteristic', function () {
 
   describe('toString', function () {
     it('should be uuid, name, type, properties', function () {
-      characteristic.toString().should.equal('{"uuid":"mock-uuid","name":null,"type":null,"properties":["mock-property-1","mock-property-2"]}');
+      characteristic.toString().should.equal('{"uuid":"mock-uuid","properties":["mock-property-1","mock-property-2"],"descriptors":null,"startHandle":null,"valueHandle":null}');
     });
   });
 
