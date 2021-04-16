@@ -58,7 +58,7 @@ describe('Characteristic', function () {
   describe('readAsync', () => {
     it('should delegate to noble', async () => {
       const promise = characteristic.readAsync();
-      characteristic.emit('data', true);
+      characteristic.emit('read', true);
       const ret = await promise;
 
       mockNoble.read.calledWithExactly(mockPeripheralId, mockServiceUuid, mockUuid).should.equal(true);
@@ -69,7 +69,7 @@ describe('Characteristic', function () {
       const mockData = Buffer.alloc(0);
 
       const promise = characteristic.readAsync();
-      characteristic.emit('data', mockData);
+      characteristic.emit('read', mockData);
       const result = await promise;
 
       result.should.equal(mockData);
