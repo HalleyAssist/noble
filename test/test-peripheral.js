@@ -209,8 +209,8 @@ describe('Peripheral', function () {
       peripheral.emit('servicesDiscover', mockServices);
       await p
 
-      mockServices[0].discoverCharacteristicsAsync.calledWith(mockCharacteristicUuids).should.equal(true);
-      mockServices[1].discoverCharacteristicsAsync.calledWith(mockCharacteristicUuids).should.equal(true);
+      mockServices[0].discoverCharacteristicsAsync.calledWith().should.equal(true);
+      mockServices[1].discoverCharacteristicsAsync.calledWith().should.equal(true);
     });
 
     it('should reject on error', async () => {
