@@ -40,7 +40,7 @@
     "q-lite": "https://github.com/HalleyAssist/q-lite.git"
   },
   "optionalDependencies": {
-    "@abandonware/bluetooth-hci-socket": "https://github.com/HalleyAssist/node-bluetooth-hci-socket.git#experiment/disconnect1"
+    "@abandonware/bluetooth-hci-socket": "https://github.com/HalleyAssist/node-bluetooth-hci-socket.git"
   },
   "devDependencies": {
     "async": "^3.2.0",
