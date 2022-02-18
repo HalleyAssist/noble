@@ -1,10 +1,10 @@
 const Noble = require('./lib/noble');
 
-const Bindings = require('./lib/resolve-bindings')();
+const Bindings = require('./lib/hci-socket/bindings')
 
 class NobleInstance extends Noble {
     constructor(){
-        super(Bindings)
+        super(new Bindings())
     }
 }
 
