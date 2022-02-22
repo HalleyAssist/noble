@@ -81,16 +81,7 @@ describe('service', function () {
       service.emit('characteristicsDiscover', true);
       await promise;
 
-      mockNoble.discoverCharacteristics.calledWithExactly(mockPeripheralId, mockUuid, undefined).should.equal(true);
-    });
-
-    it('should delegate to noble, with uuids', async () => {
-      const mockUuids = [];
-      const promise = service.discoverCharacteristicsAsync(mockUuids);
-      service.emit('characteristicsDiscover', true);
-      await promise;
-
-      mockNoble.discoverCharacteristics.calledWithExactly(mockPeripheralId, mockUuid, mockUuids).should.equal(true);
+      mockNoble.discoverCharacteristics.calledWithExactly(mockPeripheralId, mockUuid).should.equal(true);
     });
 
     it('should resolve with data', async () => {

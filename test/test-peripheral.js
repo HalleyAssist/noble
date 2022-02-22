@@ -204,7 +204,7 @@ describe('Peripheral', function () {
     });
 
     it('should call discoverCharacteristics on each service discovered', async function() {
-      const p = peripheral.discoverSomeServicesAndCharacteristicsAsync(mockServiceUuids, mockCharacteristicUuids);
+      const p = peripheral.discoverSomeServicesAndCharacteristicsAsync(mockServiceUuids, null);
 
       peripheral.emit('servicesDiscover', mockServices);
       await p

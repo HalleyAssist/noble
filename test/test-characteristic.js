@@ -51,7 +51,7 @@ describe('Characteristic', function () {
 
   describe('toString', function () {
     it('should be uuid, name, type, properties', function () {
-      characteristic.toString().should.equal('{"uuid":"mock-uuid","properties":["mock-property-1","mock-property-2"],"descriptors":null,"startHandle":null,"valueHandle":null}');
+      characteristic.toString().should.equal('{"uuid":"mock-uuid","properties":["mock-property-1","mock-property-2"],"descriptors":null,"startHandle":null,"valueHandle":null,"endHandle":null}');
     });
   });
 
@@ -146,7 +146,7 @@ describe('Characteristic', function () {
       characteristic.emit('notify');
       await promise;
 
-      mockNoble.notify.calledWithExactly(mockPeripheralId, mockServiceUuid, mockUuid, true).should.equal(true);
+      mockNoble.notify.calledWithExactly(mockPeripheralId, mockServiceUuid, mockUuid, true, {}).should.equal(true);
     });
 
     it('should delegate to noble, false', async () => {
@@ -154,7 +154,7 @@ describe('Characteristic', function () {
       characteristic.emit('notify');
       await promise;
 
-      mockNoble.notify.calledWithExactly(mockPeripheralId, mockServiceUuid, mockUuid, false).should.equal(true);
+      mockNoble.notify.calledWithExactly(mockPeripheralId, mockServiceUuid, mockUuid, false, {}).should.equal(true);
     });
 
     it('should resolve', async () => {
@@ -172,7 +172,7 @@ describe('Characteristic', function () {
       characteristic.emit('notify');
       await promise;
 
-      mockNoble.notify.calledWithExactly(mockPeripheralId, mockServiceUuid, mockUuid, true).should.equal(true);
+      mockNoble.notify.calledWithExactly(mockPeripheralId, mockServiceUuid, mockUuid, true, {}).should.equal(true);
     });
 
     it('should resolve', async () => {
@@ -190,7 +190,7 @@ describe('Characteristic', function () {
       characteristic.emit('notify');
       await promise;
 
-      mockNoble.notify.calledWithExactly(mockPeripheralId, mockServiceUuid, mockUuid, false).should.equal(true);
+      mockNoble.notify.calledWithExactly(mockPeripheralId, mockServiceUuid, mockUuid, false, {}).should.equal(true);
     });
 
     it('should resolve', async () => {
