@@ -2,6 +2,8 @@ require('should');
 const sinon = require('sinon');
 
 const Characteristic = require('../lib/characteristic');
+const Service = require('../lib/service');
+const Peripheral = require('../lib/peripheral');
 
 describe('Characteristic', function () {
   let mockNoble = null;
@@ -12,6 +14,9 @@ describe('Characteristic', function () {
 
   let characteristic = null;
 
+  const mockPeripheral = new Peripheral(mockPeripheralId)
+  const mockService = new Service(mockPeripheral, mockServiceUuid)
+
   beforeEach(function () {
     mockNoble = {
       read: sinon.spy(),
@@ -21,7 +26,7 @@ describe('Characteristic', function () {
       discoverDescriptors: sinon.spy()
     };
 
-    characteristic = new Characteristic(mockNoble, mockPeripheralId, mockServiceUuid, mockUuid, mockProperties);
+    characteristic = new Characteristic(mockService, mockUuid, mockProperties);
   });
 
   afterEach(function () {
@@ -34,12 +39,12 @@ describe('Characteristic', function () {
 
   it('should be dumpable and restorable', function () {
     const dumped = characteristic.dump()
-    const restored = Characteristic.fromDump(mockNoble, dumped)
+    const restored = Characteristic.fromDump(dumped)
     characteristic.toString().should.eql(restored.toString())
   });
 
   it('should lookup name and type by uuid', function () {
-    characteristic = new Characteristic(mockNoble, mockPeripheralId, mockServiceUuid, '2a00', mockProperties);
+    characteristic = new Characteristic(mockService, '2a00', mockProperties);
 
     characteristic.name.should.equal('Device Name');
     characteristic.type.should.equal('org.bluetooth.characteristic.gap.device_name');
@@ -57,7 +62,7 @@ describe('Characteristic', function () {
 
   describe('readAsync', () => {
     it('should delegate to noble', async () => {
-      const promise = characteristic.readAsync();
+      const promise = characteristic.readAsync(mockNoble);
       characteristic.emit('read', true);
       const ret = await promise;
 
@@ -68,7 +73,7 @@ describe('Characteristic', function () {
     it('should resolve with data', async () => {
       const mockData = Buffer.alloc(0);
 
-      const promise = characteristic.readAsync();
+      const promise = characteristic.readAsync(mockNoble);
       characteristic.emit('read', mockData);
       const result = await promise;
 
@@ -90,7 +95,7 @@ describe('Characteristic', function () {
     });
 
     it('should delegate to noble, withoutResponse false', async () => {
-      const promise = characteristic.writeAsync(mockData, false);
+      const promise = characteristic.writeAsync(mockNoble, mockData, false);
       characteristic.emit('write');
       await promise;
 
@@ -98,7 +103,7 @@ describe('Characteristic', function () {
     });
 
     it('should delegate to noble, withoutResponse true', async () => {
-      const promise = characteristic.writeAsync(mockData, true);
+      const promise = characteristic.writeAsync(mockNoble, mockData, true);
       characteristic.emit('write');
       await promise;
 
@@ -106,7 +111,7 @@ describe('Characteristic', function () {
     });
 
     it('should resolve', async () => {
-      const promise = characteristic.writeAsync(mockData, true);
+      const promise = characteristic.writeAsync(mockNoble, mockData, true);
       characteristic.emit('write');
       await promise;
 
@@ -116,7 +121,7 @@ describe('Characteristic', function () {
 
   describe('broadcastAsync', () => {
     it('should delegate to noble, true', async () => {
-      const promise = characteristic.broadcastAsync(true);
+      const promise = characteristic.broadcastAsync(mockNoble, true);
       characteristic.emit('broadcast');
       await promise;
 
@@ -124,7 +129,7 @@ describe('Characteristic', function () {
     });
 
     it('should delegate to noble, false', async () => {
-      const promise = characteristic.broadcastAsync(false);
+      const promise = characteristic.broadcastAsync(mockNoble, false);
       characteristic.emit('broadcast');
       await promise;
 
@@ -132,7 +137,7 @@ describe('Characteristic', function () {
     });
 
     it('should resolve', async () => {
-      const promise = characteristic.broadcastAsync(true);
+      const promise = characteristic.broadcastAsync(mockNoble, true);
       characteristic.emit('broadcast');
       await promise;
 
@@ -142,7 +147,7 @@ describe('Characteristic', function () {
 
   describe('notifyAsync', () => {
     it('should delegate to noble, true', async () => {
-      const promise = characteristic.notifyAsync(true);
+      const promise = characteristic.notifyAsync(mockNoble, true);
       characteristic.emit('notify');
       await promise;
 
@@ -150,7 +155,7 @@ describe('Characteristic', function () {
     });
 
     it('should delegate to noble, false', async () => {
-      const promise = characteristic.notifyAsync(false);
+      const promise = characteristic.notifyAsync(mockNoble, false);
       characteristic.emit('notify');
       await promise;
 
@@ -158,7 +163,7 @@ describe('Characteristic', function () {
     });
 
     it('should resolve', async () => {
-      const promise = characteristic.notifyAsync(true);
+      const promise = characteristic.notifyAsync(mockNoble, true);
       characteristic.emit('notify');
       await promise;
 
@@ -168,7 +173,7 @@ describe('Characteristic', function () {
 
   describe('subscribeAsync', () => {
     it('should delegate to noble notify, true', async () => {
-      const promise = characteristic.subscribeAsync();
+      const promise = characteristic.subscribeAsync(mockNoble);
       characteristic.emit('notify');
       await promise;
 
@@ -176,7 +181,7 @@ describe('Characteristic', function () {
     });
 
     it('should resolve', async () => {
-      const promise = characteristic.subscribeAsync();
+      const promise = characteristic.subscribeAsync(mockNoble);
       characteristic.emit('notify');
       await promise;
 
@@ -186,7 +191,7 @@ describe('Characteristic', function () {
 
   describe('unsubscribeAsync', () => {
     it('should delegate to noble notify, false', async () => {
-      const promise = characteristic.unsubscribeAsync();
+      const promise = characteristic.unsubscribeAsync(mockNoble);
       characteristic.emit('notify');
       await promise;
 
@@ -194,7 +199,7 @@ describe('Characteristic', function () {
     });
 
     it('should resolve', async () => {
-      const promise = characteristic.unsubscribeAsync();
+      const promise = characteristic.unsubscribeAsync(mockNoble);
       characteristic.emit('notify');
       await promise;
 
@@ -204,7 +209,7 @@ describe('Characteristic', function () {
 
   describe('discoverDescriptorsAsync', () => {
     it('should delegate to noble', async () => {
-      const promise = characteristic.discoverDescriptorsAsync();
+      const promise = characteristic.discoverDescriptorsAsync(mockNoble);
       characteristic.emit('descriptorsDiscover', true);
       await promise;
 
@@ -214,7 +219,7 @@ describe('Characteristic', function () {
     it('should resolve with descriptors', async () => {
       const mockDescriptors = [];
 
-      const promise = characteristic.discoverDescriptorsAsync();
+      const promise = characteristic.discoverDescriptorsAsync(mockNoble);
       characteristic.emit('descriptorsDiscover', mockDescriptors);
       const result = await promise;
 

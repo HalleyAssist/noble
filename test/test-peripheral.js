@@ -28,7 +28,7 @@ describe('Peripheral', function () {
       writeHandle: sinon.spy()
     };
 
-    peripheral = new Peripheral(mockNoble, mockId, mockAddress, mockAddressType, mockConnectable, mockAdvertisement, mockRssi);
+    peripheral = new Peripheral(mockId, mockAddress, mockAddressType, mockConnectable, mockAdvertisement, mockRssi);
   });
 
   afterEach(function () {
@@ -54,7 +54,7 @@ describe('Peripheral', function () {
 
   it('should be dumpable and restorable', function () {
     const dumped = peripheral.dump()
-    const restored = Peripheral.fromDump(mockNoble, dumped)
+    const restored = Peripheral.fromDump(dumped)
     peripheral.toString().should.eql(restored.toString())
   });
 
@@ -75,7 +75,7 @@ describe('Peripheral', function () {
 
   describe('connectAsync', () => {
     it('should resolve', async () => {
-      const promise = peripheral.connectAsync();
+      const promise = peripheral.connectAsync(mockNoble);
 
       peripheral.emit('connect');
 
@@ -83,7 +83,7 @@ describe('Peripheral', function () {
     });
 
     it('should reject on error', async () => {
-      const promise = peripheral.connectAsync();
+      const promise = peripheral.connectAsync(mockNoble);
 
       peripheral.emit('connect', new Error('error'));
 
@@ -91,7 +91,7 @@ describe('Peripheral', function () {
     });
 
     it('should delegate to noble', async () => {
-      const promise = peripheral.connectAsync();
+      const promise = peripheral.connectAsync(mockNoble);
 
       peripheral.emit('connect');
       await promise;
@@ -102,7 +102,7 @@ describe('Peripheral', function () {
     it('with options', async () => {
       const options = { options: true };
 
-      const promise = peripheral.connectAsync(options);
+      const promise = peripheral.connectAsync(mockNoble, options);
       peripheral.emit('connect');
       await promise;
 
@@ -112,7 +112,7 @@ describe('Peripheral', function () {
 
   describe('disconnectAsync', function () {
     it('should resolve', async () => {
-      const promise = peripheral.disconnectAsync();
+      const promise = peripheral.disconnectAsync(mockNoble);
 
       peripheral.emit('disconnect');
 
@@ -120,7 +120,7 @@ describe('Peripheral', function () {
     });
 
     it('should delegate to noble',async  () => {
-      const promise = peripheral.disconnectAsync();
+      const promise = peripheral.disconnectAsync(mockNoble);
 
       peripheral.emit('disconnect');
       await promise.should.be.fulfilled();
@@ -131,7 +131,7 @@ describe('Peripheral', function () {
 
   describe('updateRssiAsync', () => {
     it('should resolve with rssi', async () => {
-      const promise = peripheral.updateRssiAsync();
+      const promise = peripheral.updateRssiAsync(mockNoble);
 
       peripheral.emit('rssiUpdate', mockRssi);
 
@@ -139,7 +139,7 @@ describe('Peripheral', function () {
     });
 
     it('should delegate to noble', async () => {
-      const promise = peripheral.updateRssiAsync();
+      const promise = peripheral.updateRssiAsync(mockNoble);
 
       peripheral.emit('rssiUpdate', true);
       await promise;
@@ -152,14 +152,14 @@ describe('Peripheral', function () {
     it('should resolve with services', async () => {
       const mockServices = 'discoveredServices';
 
-      const promise = peripheral.discoverServicesAsync();
+      const promise = peripheral.discoverServicesAsync(mockNoble);
       peripheral.emit('servicesDiscover', mockServices);
 
       await promise.should.be.fulfilledWith(mockServices);
     });
 
     it('should delegate to noble', async () => {
-      const promise = peripheral.discoverServicesAsync();
+      const promise = peripheral.discoverServicesAsync(mockNoble);
       peripheral.emit('servicesDiscover', true);
       await promise;
 
@@ -169,7 +169,7 @@ describe('Peripheral', function () {
     it('should delegate to noble, service uuids', async () => {
       const mockServiceUuids = [];
 
-      const promise = peripheral.discoverServicesAsync(mockServiceUuids);
+      const promise = peripheral.discoverServicesAsync(mockNoble, mockServiceUuids);
       peripheral.emit('servicesDiscover', true);
       await promise;
 
@@ -198,13 +198,13 @@ describe('Peripheral', function () {
     });
 
     it('should call discoverServices', async () => {
-      peripheral.discoverSomeServicesAndCharacteristicsAsync(mockServiceUuids);
+      peripheral.discoverSomeServicesAndCharacteristicsAsync(mockNoble, mockServiceUuids);
 
-      peripheral.discoverServicesAsync.calledWith(mockServiceUuids).should.equal(true);
+      peripheral.discoverServicesAsync.calledWith(mockNoble, mockServiceUuids).should.equal(true);
     });
 
     it('should call discoverCharacteristics on each service discovered', async function() {
-      const p = peripheral.discoverSomeServicesAndCharacteristicsAsync(mockServiceUuids, null);
+      const p = peripheral.discoverSomeServicesAndCharacteristicsAsync(mockNoble, mockServiceUuids, null);
 
       peripheral.emit('servicesDiscover', mockServices);
       await p
@@ -214,7 +214,7 @@ describe('Peripheral', function () {
     });
 
     it('should reject on error', async () => {
-      const promise = peripheral.discoverSomeServicesAndCharacteristicsAsync(mockServiceUuids);
+      const promise = peripheral.discoverSomeServicesAndCharacteristicsAsync(mockNoble, mockServiceUuids);
 
       peripheral.emit('servicesDiscover', new Error('error'));
 
@@ -246,19 +246,19 @@ describe('Peripheral', function () {
     it('should call discoverSomeServicesAndCharacteristics', async () => {
       peripheral.discoverSomeServicesAndCharacteristicsAsync = sinon.spy();
 
-      const promise = peripheral.discoverAllServicesAndCharacteristicsAsync();
+      const promise = peripheral.discoverAllServicesAndCharacteristicsAsync(mockNoble);
 
       peripheral.emit('servicesDiscover', true);
       await promise;
 
-      peripheral.discoverSomeServicesAndCharacteristicsAsync.getCall(0).args[0].should.eql([]);
       peripheral.discoverSomeServicesAndCharacteristicsAsync.getCall(0).args[1].should.eql([]);
+      peripheral.discoverSomeServicesAndCharacteristicsAsync.getCall(0).args[2].should.eql([]);
     });
   });
 
   describe('readHandle', function () {
     it('should delegate to noble', function () {
-      peripheral.readHandle(mockHandle);
+      peripheral.readHandle(mockNoble, mockHandle);
 
       mockNoble.readHandle.calledWithExactly(mockId, mockHandle).should.equal(true);
     });
@@ -266,7 +266,7 @@ describe('Peripheral', function () {
     it('should callback', function () {
       let calledback = false;
 
-      peripheral.readHandle(mockHandle, function () {
+      peripheral.readHandle(mockNoble, mockHandle, function () {
         calledback = true;
       });
       peripheral.emit(`handleRead${mockHandle}`);
@@ -277,7 +277,7 @@ describe('Peripheral', function () {
     it('should callback with data', function () {
       let calledbackData = null;
 
-      peripheral.readHandle(mockHandle, function (error, data) {
+      peripheral.readHandle(mockNoble, mockHandle, function (error, data) {
         if (error) {
           throw new Error(error);
         }
@@ -291,7 +291,7 @@ describe('Peripheral', function () {
 
   describe('readHandleAsync', () => {
     it('should delegate to noble', async () => {
-      const promise = peripheral.readHandleAsync(mockHandle);
+      const promise = peripheral.readHandleAsync(mockNoble, mockHandle);
 
       peripheral.emit(`handleRead${mockHandle}`);
       await promise;
@@ -300,7 +300,7 @@ describe('Peripheral', function () {
     });
 
     it('should resolve with data', async () => {
-      const promise = peripheral.readHandleAsync(mockHandle);
+      const promise = peripheral.readHandleAsync(mockNoble, mockHandle);
 
       peripheral.emit(`handleRead${mockHandle}`, mockData);
 
@@ -317,18 +317,18 @@ describe('Peripheral', function () {
       mockData = {};
 
       (function () {
-        peripheral.writeHandle(mockHandle, mockData);
+        peripheral.writeHandle(mockNoble, mockHandle, mockData);
       }).should.throwError('data must be a Buffer');
     });
 
     it('should delegate to noble, withoutResponse false', function () {
-      peripheral.writeHandle(mockHandle, mockData, false);
+      peripheral.writeHandle(mockNoble, mockHandle, mockData, false);
 
       mockNoble.writeHandle.calledWithExactly(mockId, mockHandle, mockData, false).should.equal(true);
     });
 
     it('should delegate to noble, withoutResponse true', function () {
-      peripheral.writeHandle(mockHandle, mockData, true);
+      peripheral.writeHandle(mockNoble, mockHandle, mockData, true);
 
       mockNoble.writeHandle.calledWithExactly(mockId, mockHandle, mockData, true).should.equal(true);
     });
@@ -336,7 +336,7 @@ describe('Peripheral', function () {
     it('should callback', function () {
       let calledback = false;
 
-      peripheral.writeHandle(mockHandle, mockData, false, function () {
+      peripheral.writeHandle(mockNoble, mockHandle, mockData, false, function () {
         calledback = true;
       });
       peripheral.emit(`handleWrite${mockHandle}`);
@@ -353,11 +353,11 @@ describe('Peripheral', function () {
     it('should only accept data as a buffer', async () => {
       mockData = {};
 
-      await peripheral.writeHandleAsync(mockHandle, mockData).should.be.rejectedWith('data must be a Buffer');
+      await peripheral.writeHandleAsync(mockNoble, mockHandle, mockData).should.be.rejectedWith('data must be a Buffer');
     });
 
     it('should delegate to noble, withoutResponse false', async () => {
-      const promise = peripheral.writeHandleAsync(mockHandle, mockData, false);
+      const promise = peripheral.writeHandleAsync(mockNoble, mockHandle, mockData, false);
 
       peripheral.emit(`handleWrite${mockHandle}`);
       await promise;
@@ -366,7 +366,7 @@ describe('Peripheral', function () {
     });
 
     it('should delegate to noble, withoutResponse true', async () => {
-      const promise = peripheral.writeHandleAsync(mockHandle, mockData, true);
+      const promise = peripheral.writeHandleAsync(mockNoble, mockHandle, mockData, true);
 
       peripheral.emit(`handleWrite${mockHandle}`);
       await promise;
@@ -375,7 +375,7 @@ describe('Peripheral', function () {
     });
 
     it('should resolve', async () => {
-      const promise = peripheral.writeHandleAsync(mockHandle, mockData, false);
+      const promise = peripheral.writeHandleAsync(mockNoble, mockHandle, mockData, false);
 
       peripheral.emit(`handleWrite${mockHandle}`);
       await promise.should.be.resolvedWith();

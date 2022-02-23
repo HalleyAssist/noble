@@ -2,11 +2,13 @@ require('should');
 const sinon = require('sinon');
 
 const Service = require('../lib/service');
+const Peripheral = require('../lib/peripheral');
 
 describe('service', function () {
   let mockNoble = null;
   const mockPeripheralId = 'mock-peripheral-id';
   const mockUuid = 'mock-uuid';
+  const mockPeripheral = new Peripheral(mockPeripheralId, 'mock-address', 'mock-address-type', true, {}, 0);
 
   let service = null;
 
@@ -16,7 +18,7 @@ describe('service', function () {
       discoverCharacteristics: sinon.spy()
     };
 
-    service = new Service(mockNoble, mockPeripheralId, mockUuid);
+    service = new Service(mockPeripheral, mockUuid);
   });
 
   afterEach(function () {
@@ -28,7 +30,7 @@ describe('service', function () {
   });
 
   it('should lookup name and type by uuid', function () {
-    service = new Service(mockNoble, mockPeripheralId, '1800');
+    service = new Service(mockPeripheral, '1800');
 
     service.name.should.equal('Generic Access');
     service.type.should.equal('org.bluetooth.service.generic_access');
@@ -42,13 +44,13 @@ describe('service', function () {
 
   it('should be dumpable and restorable', function () {
     const dumped = service.dump()
-    const restored = Service.fromDump(mockNoble, dumped)
+    const restored = Service.fromDump(dumped)
     service.toString().should.eql(restored.toString())
   });
 
   describe('discoverIncludedServicesAsync', function () {
     it('should delegate to noble', async () => {
-      const promise = service.discoverIncludedServicesAsync();
+      const promise = service.discoverIncludedServicesAsync(mockNoble);
       service.emit('includedServicesDiscover', true);
       await promise;
 
@@ -57,7 +59,7 @@ describe('service', function () {
 
     it('should delegate to noble, with uuids', async () => {
       const mockUuids = [];
-      const promise = service.discoverIncludedServicesAsync(mockUuids);
+      const promise = service.discoverIncludedServicesAsync(mockNoble, mockUuids);
       service.emit('includedServicesDiscover', true);
       await promise;
 
@@ -67,7 +69,7 @@ describe('service', function () {
     it('should resolve with data', async () => {
       const mockIncludedServiceUuids = [];
 
-      const promise = service.discoverIncludedServicesAsync();
+      const promise = service.discoverIncludedServicesAsync(mockNoble);
       service.emit('includedServicesDiscover', mockIncludedServiceUuids);
       const result = await promise;
 
@@ -77,7 +79,7 @@ describe('service', function () {
 
   describe('discoverCharacteristicsAsync', () => {
     it('should delegate to noble', async () => {
-      const promise = service.discoverCharacteristicsAsync();
+      const promise = service.discoverCharacteristicsAsync(mockNoble);
       service.emit('characteristicsDiscover', true);
       await promise;
 
@@ -87,7 +89,7 @@ describe('service', function () {
     it('should resolve with data', async () => {
       const mockCharacteristics = [];
 
-      const promise = service.discoverCharacteristicsAsync();
+      const promise = service.discoverCharacteristicsAsync(mockNoble);
       service.emit('characteristicsDiscover', mockCharacteristics);
       const result = await promise;
 
