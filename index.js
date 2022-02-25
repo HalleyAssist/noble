@@ -14,5 +14,6 @@ NobleInstance.Peripheral = require('./lib/peripheral')
 NobleInstance.Service = require('./lib/service')
 NobleInstance.Descriptor = require('./lib/descriptor')
 NobleInstance.Characteristic = require('./lib/characteristic')
+NobleInstance.PeripheralDb = require('./lib/peripheraldb')
 
 module.exports = NobleInstance
